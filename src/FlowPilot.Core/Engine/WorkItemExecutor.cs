@@ -302,7 +302,8 @@ public sealed class WorkItemExecutor(
                     execution.Status = NodeExecutionStatus.Completed;
                     execution.Outcome = result.Outcome;
                     execution.OutputJson = FlowPilotJson.ToJson(secrets.MaskNode(result.Output));
-                    state.Outputs[node.Id] = secrets.MaskNode(result.Output);
+                    // Clone: the transaction may retry on a concurrency conflict, and a JsonNode can only have one parent.
+                    state.Outputs[node.Id] = secrets.MaskNode(result.Output)?.DeepClone();
                     tokens.Route(node.Id, result.Outcome, result.Output);
                     break;
 
