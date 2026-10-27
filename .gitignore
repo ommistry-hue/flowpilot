@@ -1,4 +1,4 @@
-## .NET / Visual Studio
+﻿## .NET / Visual Studio
 [Bb]in/
 [Oo]bj/
 [Dd]ebug/
@@ -53,7 +53,7 @@ src/FlowPilot.Server/wwwroot/
 *.db
 *.db-shm
 *.db-wal
-plugins/
+/plugins/
 
 ## Secrets and local env
 .env
