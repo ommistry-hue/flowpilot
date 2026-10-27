@@ -1,5 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <Description>Durable workflow engine for FlowPilot: token-based execution, retries, approvals, triggers, Jint expressions and EF Core persistence (SQLite or PostgreSQL). Embed with AddFlowPilot().</Description>
+    <PackageTags>$(PackageTags);engine;efcore;sqlite;postgresql</PackageTags>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\FlowPilot.Abstractions\FlowPilot.Abstractions.csproj" />
   </ItemGroup>

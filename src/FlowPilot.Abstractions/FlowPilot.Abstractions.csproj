@@ -1,7 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>Plugin SDK for FlowPilot activities.</Description>
+    <IsPackable>true</IsPackable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <Description>Plugin SDK for FlowPilot, the open-source workflow automation platform for .NET. Reference this package to build custom activities.</Description>
+    <PackageTags>$(PackageTags);plugin;sdk</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

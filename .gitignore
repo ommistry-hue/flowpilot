@@ -66,3 +66,6 @@ Thumbs.db
 
 # FlowPilot runtime data
 src/FlowPilot.Server/plugins/
+
+# NuGet pack output
+/artifacts/

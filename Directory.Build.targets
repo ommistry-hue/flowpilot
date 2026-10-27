@@ -1,0 +1,29 @@
+<Project>
+  <!-- nuget.org renders a restricted Markdown subset: no relative links and no raw HTML.
+       Pack the repository README with links made absolute and HTML converted or stripped. -->
+  <PropertyGroup Condition="'$(IsPackable)' == 'true'">
+    <FlowPilotRepoBlob>https://github.com/ommistry-hue/flowpilot/blob/main/</FlowPilotRepoBlob>
+    <FlowPilotRepoRaw>https://raw.githubusercontent.com/ommistry-hue/flowpilot/main/</FlowPilotRepoRaw>
+    <FlowPilotNuGetReadme>$(MSBuildProjectDirectory)/obj/nuget/README.md</FlowPilotNuGetReadme>  </PropertyGroup>
+
+  <ItemGroup Condition="'$(IsPackable)' == 'true'">
+    <None Include="$(FlowPilotNuGetReadme)" Pack="true" PackagePath="/README.md" Visible="false" />
+  </ItemGroup>
+
+  <Target Name="FlowPilotNuGetReadme" BeforeTargets="GenerateNuspec;_GetPackageFiles" Condition="'$(IsPackable)' == 'true'">
+    <PropertyGroup>
+      <_Md>$([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)README.md'))</_Md>
+      <_Md>$([System.Text.RegularExpressions.Regex]::Replace($(_Md), '&lt;!--[\s\S]*?--&gt;', ''))</_Md>
+      <_Md>$(_Md.Replace('docs/assets/logo.svg', 'build/icon.png'))</_Md>
+      <_Md>$([System.Text.RegularExpressions.Regex]::Replace($(_Md), '&lt;img\s[^&gt;]*?src="([^"]+)"[^&gt;]*?alt="([^"]*)"[^&gt;]*&gt;', '![$2]($1)'))</_Md>
+      <_Md>$([System.Text.RegularExpressions.Regex]::Replace($(_Md), '&lt;img\s[^&gt;]*?alt="([^"]*)"[^&gt;]*?src="([^"]+)"[^&gt;]*&gt;', '![$1]($2)'))</_Md>
+      <_Md>$([System.Text.RegularExpressions.Regex]::Replace($(_Md), '&lt;br\s*/?&gt;', ' '))</_Md>
+      <_Md>$([System.Text.RegularExpressions.Regex]::Replace($(_Md), '&lt;summary&gt;[\s\S]*?&lt;/summary&gt;', ''))</_Md>
+      <_Md>$([System.Text.RegularExpressions.Regex]::Replace($(_Md), '&lt;/?(div|sub|details|b|p|picture|source)\b[^&gt;]*&gt;', ''))</_Md>
+      <_Md>$([System.Text.RegularExpressions.Regex]::Replace($(_Md), '\]\((?!https?:|#|mailto:)([^)]+\.(png|gif|jpg|svg))\)', ']($(FlowPilotRepoRaw)$1)'))</_Md>
+      <_Md>$([System.Text.RegularExpressions.Regex]::Replace($(_Md), '\]\((?!https?:|#|mailto:)([^)]+)\)', ']($(FlowPilotRepoBlob)$1)'))</_Md>
+    </PropertyGroup>
+    <MakeDir Directories="$(MSBuildProjectDirectory)/obj/nuget" />
+    <WriteLinesToFile File="$(FlowPilotNuGetReadme)" Lines="$([MSBuild]::Escape($(_Md)))" Overwrite="true" WriteOnlyWhenDifferent="true" />
+  </Target>
+</Project>

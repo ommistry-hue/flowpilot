@@ -41,6 +41,7 @@ public sealed class WorkItemExecutor(
         return await claimer.ClaimAsync(db, WorkerId, maxItems, now, now + options.Value.LeaseDuration, cancellationToken);
     }
 
+    /// <param name="workItemId">The claimed work item to run.</param>
     /// <param name="cancellationToken">The host's stopping token. Cancelling it hands the item back instead of failing it.</param>
     public async Task ExecuteAsync(Guid workItemId, CancellationToken cancellationToken)
     {
