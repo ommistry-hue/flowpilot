@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and help
+    url: https://github.com/ommistry-hue/flowpilot/discussions/categories/q-a
+    about: Ask how to build a workflow, deploy FlowPilot or write a plugin.
+  - name: Ideas and show-and-tell
+    url: https://github.com/ommistry-hue/flowpilot/discussions
+    about: Share workflows and plugins, or discuss ideas before filing a feature request.
+  - name: Security vulnerability
+    url: https://github.com/ommistry-hue/flowpilot/security/advisories/new
+    about: Report security issues privately. Do not open a public issue.

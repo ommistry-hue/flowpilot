@@ -1,0 +1,249 @@
+@import 'tailwindcss';
+@import '@xyflow/react/dist/style.css';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: oklch(0.99 0.002 286);
+  --foreground: oklch(0.21 0.006 286);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.21 0.006 286);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.21 0.006 286);
+  --muted: oklch(0.967 0.002 286);
+  --muted-foreground: oklch(0.52 0.016 286);
+  --accent: oklch(0.955 0.004 286);
+  --accent-foreground: oklch(0.21 0.006 286);
+  --border: oklch(0.915 0.004 286);
+  --input: oklch(0.9 0.005 286);
+  --ring: oklch(0.56 0.22 283);
+  --primary: oklch(0.53 0.24 283);
+  --primary-foreground: oklch(0.985 0 0);
+  --primary-soft: oklch(0.955 0.03 287);
+  --primary-soft-foreground: oklch(0.45 0.2 283);
+  --destructive: oklch(0.577 0.215 27);
+  --destructive-foreground: oklch(0.985 0 0);
+  --success: oklch(0.63 0.15 155);
+  --warning: oklch(0.72 0.16 70);
+  --sidebar: oklch(0.982 0.002 286);
+  --canvas: oklch(0.975 0.002 286);
+  --canvas-dot: oklch(0.82 0.006 286);
+}
+
+.dark {
+  --background: oklch(0.155 0.004 286);
+  --foreground: oklch(0.96 0.002 286);
+  --card: oklch(0.19 0.005 286);
+  --card-foreground: oklch(0.96 0.002 286);
+  --popover: oklch(0.2 0.006 286);
+  --popover-foreground: oklch(0.96 0.002 286);
+  --muted: oklch(0.23 0.006 286);
+  --muted-foreground: oklch(0.68 0.012 286);
+  --accent: oklch(0.25 0.007 286);
+  --accent-foreground: oklch(0.96 0.002 286);
+  --border: oklch(1 0 0 / 9%);
+  --input: oklch(1 0 0 / 13%);
+  --ring: oklch(0.65 0.2 285);
+  --primary: oklch(0.62 0.21 285);
+  --primary-foreground: oklch(0.99 0 0);
+  --primary-soft: oklch(0.3 0.08 285);
+  --primary-soft-foreground: oklch(0.82 0.1 287);
+  --destructive: oklch(0.64 0.2 25);
+  --destructive-foreground: oklch(0.985 0 0);
+  --success: oklch(0.7 0.15 155);
+  --warning: oklch(0.78 0.15 75);
+  --sidebar: oklch(0.17 0.005 286);
+  --canvas: oklch(0.14 0.004 286);
+  --canvas-dot: oklch(0.32 0.008 286);
+}
+
+@theme inline {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-soft-foreground: var(--primary-soft-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-sidebar: var(--sidebar);
+  --color-canvas: var(--canvas);
+  --shadow-soft: 0 1px 2px rgb(9 9 11 / 0.06), 0 1px 1px rgb(9 9 11 / 0.04);
+  --shadow-elevated: 0 12px 32px -8px rgb(9 9 11 / 0.24), 0 2px 6px rgb(9 9 11 / 0.08);
+  --animate-fade-in: fade-in 160ms ease-out;
+  --animate-zoom-in: zoom-in 160ms cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-slide-up: slide-up 220ms cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-node-pulse: node-pulse 1.4s ease-in-out infinite;
+  --animate-shimmer: shimmer 1.6s linear infinite;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes zoom-in {
+  from { opacity: 0; transform: translate(-50%, -48%) scale(0.97); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes node-pulse {
+  0% { outline: 2px solid color-mix(in oklch, var(--primary) 55%, transparent); outline-offset: 2px; }
+  100% { outline: 2px solid color-mix(in oklch, var(--primary) 0%, transparent); outline-offset: 10px; }
+}
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  html {
+    color-scheme: light;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: 'cv11', 'ss01';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  ::selection {
+    background: color-mix(in oklch, var(--primary) 25%, transparent);
+  }
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklch, var(--muted-foreground) 35%, transparent) transparent;
+  }
+  .bg-dots {
+    background-image: radial-gradient(var(--canvas-dot) 1px, transparent 1px);
+    background-size: 16px 16px;
+  }
+}
+
+/* React Flow theming */
+.react-flow {
+  --xy-background-color: var(--canvas);
+  --xy-edge-stroke-default: color-mix(in oklch, var(--muted-foreground) 70%, transparent);
+  --xy-edge-stroke-selected-default: var(--primary);
+  --xy-edge-stroke-width-default: 1.6;
+  --xy-connectionline-stroke-default: var(--primary);
+  --xy-connectionline-stroke-width-default: 1.6;
+  --xy-minimap-background-color-default: var(--card);
+  --xy-minimap-mask-background-color-default: color-mix(in oklch, var(--background) 60%, transparent);
+  --xy-minimap-node-background-color-default: color-mix(in oklch, var(--muted-foreground) 40%, transparent);
+  --xy-controls-button-background-color-default: var(--card);
+  --xy-controls-button-background-color-hover-default: var(--accent);
+  --xy-controls-button-color-default: var(--foreground);
+  --xy-controls-button-border-color-default: var(--border);
+  --xy-selection-background-color-default: color-mix(in oklch, var(--primary) 8%, transparent);
+  --xy-selection-border-default: 1px dashed var(--primary);
+  --xy-attribution-background-color-default: transparent;
+}
+.react-flow__node {
+  cursor: default;
+}
+.react-flow__controls {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: none;
+}
+.react-flow__controls-button {
+  width: 28px;
+  height: 28px;
+  border-bottom: 1px solid var(--border);
+}
+.react-flow__controls-button svg {
+  fill: currentColor;
+}
+.react-flow__minimap {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.react-flow__handle {
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--card);
+  background: var(--muted-foreground);
+  transition: transform 120ms ease, background 120ms ease;
+}
+.react-flow__handle:hover,
+.react-flow__handle.connectingto {
+  background: var(--primary);
+  transform: scale(1.35);
+}
+.react-flow__handle-left:hover,
+.react-flow__handle-right:hover {
+  transform: translate(0, -50%) scale(1.35);
+}
+.react-flow__handle-left.connectingto,
+.react-flow__handle-right.connectingto {
+  transform: translate(0, -50%) scale(1.35);
+}
+.react-flow__handle-bottom:hover {
+  transform: translate(-50%, 0) scale(1.35);
+}
+.react-flow__edge.selected .react-flow__edge-path,
+.react-flow__edge:focus .react-flow__edge-path {
+  stroke-width: 2.2;
+}
+.react-flow__edge-path.edge-error {
+  stroke: color-mix(in oklch, var(--destructive) 75%, transparent);
+  stroke-dasharray: 5 4;
+}
+.react-flow__edge-path.edge-active {
+  stroke: var(--success);
+  stroke-width: 2;
+}
+.react-flow__edge-path.edge-invalid {
+  stroke: var(--destructive);
+}
+.react-flow__attribution {
+  font-size: 9px;
+  opacity: 0.5;
+}
+
+.fp-ghost .react-flow__node {
+  opacity: 0.78;
+}
+.fp-ghost .react-flow__node > div {
+  border-style: dashed;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px color-mix(in oklch, var(--primary) 10%, transparent);
+}
+.fp-ghost .react-flow__edge-path {
+  stroke: color-mix(in oklch, var(--primary) 70%, transparent);
+  stroke-dasharray: 6 4;
+}

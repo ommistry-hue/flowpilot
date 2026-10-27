@@ -1,0 +1,68 @@
+name: Bug report
+description: Something does not work as documented.
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Please search [existing issues](https://github.com/ommistry-hue/flowpilot/issues) first.
+        Security problems go to [SECURITY.md](https://github.com/ommistry-hue/flowpilot/blob/main/SECURITY.md), not here.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Import the workflow below
+        2. Run it with input ...
+        3. Node `check` fails with ...
+    validations:
+      required: true
+  - type: textarea
+    id: workflow
+    attributes:
+      label: Workflow JSON (minimal)
+      description: Export the smallest workflow that reproduces the problem. Remove secrets.
+      render: json
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or error output
+      render: shell
+  - type: input
+    id: version
+    attributes:
+      label: FlowPilot version or commit
+      placeholder: v0.1.0 or 1a2b3c4
+    validations:
+      required: true
+  - type: dropdown
+    id: deployment
+    attributes:
+      label: How do you run FlowPilot?
+      options:
+        - Docker Compose
+        - docker run
+        - From source (dotnet run)
+        - Embedded via AddFlowPilot()
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: database
+    attributes:
+      label: Database
+      options:
+        - SQLite
+        - PostgreSQL
+  - type: input
+    id: environment
+    attributes:
+      label: OS / browser
+      placeholder: Ubuntu 24.04, Chrome 140

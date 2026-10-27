@@ -1,0 +1,60 @@
+name: New activity / integration
+description: Propose a new node, such as a Slack, GitHub or database integration.
+labels: ["activity", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Activities are single C# classes. See the [activity guide](https://github.com/ommistry-hue/flowpilot/blob/main/docs/writing-activities.md).
+  - type: input
+    id: type
+    attributes:
+      label: Proposed type name
+      description: Lowercase and dotted, grouped by service.
+      placeholder: slack.message
+    validations:
+      required: true
+  - type: textarea
+    id: purpose
+    attributes:
+      label: What should it do?
+      description: The use case, and a link to the service's API docs.
+    validations:
+      required: true
+  - type: textarea
+    id: inputs
+    attributes:
+      label: Inputs
+      description: Config fields, with their kind (Text, Multiline, Expression, Number, Boolean, Json, Select, Code) and whether each is required.
+      placeholder: |
+        - webhookUrl (Text, required)
+        - text (Multiline, required)
+        - channel (Text)
+  - type: textarea
+    id: outputs
+    attributes:
+      label: Outcomes and output
+      description: Which outcomes it emits (done, true/false, ...) and the shape of its output JSON.
+  - type: dropdown
+    id: suspends
+    attributes:
+      label: Does it need to wait for something external?
+      description: For example, a reply, a callback, or a timer. These activities suspend with a bookmark.
+      options:
+        - "No"
+        - "Yes"
+        - Not sure
+  - type: dropdown
+    id: placement
+    attributes:
+      label: Where should it live?
+      options:
+        - Built in (FlowPilot.Core)
+        - Separate plugin
+        - Not sure
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Contribution
+      options:
+        - label: I am willing to implement this activity.

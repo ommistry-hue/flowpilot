@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+  <title id="title">FlowPilot</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6D5AE6"/>
+      <stop offset="1" stop-color="#2F9BFF"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="120" height="120" rx="28" fill="url(#bg)"/>
+  <!-- edges -->
+  <g fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-opacity="0.9">
+    <path d="M38 64 C 54 64, 54 40, 70 40"/>
+    <path d="M38 64 C 54 64, 54 88, 70 88"/>
+    <path d="M78 40 C 92 40, 88 64, 96 64"/>
+    <path d="M78 88 C 92 88, 88 64, 96 64"/>
+  </g>
+  <!-- nodes -->
+  <circle cx="32" cy="64" r="11" fill="#FFFFFF"/>
+  <rect x="64" y="31" width="20" height="18" rx="6" fill="#FFFFFF"/>
+  <rect x="64" y="79" width="20" height="18" rx="6" fill="#FFFFFF"/>
+  <!-- pilot arrow -->
+  <path d="M94 52 L110 64 L94 76 Z" fill="#FFFFFF"/>
+</svg>

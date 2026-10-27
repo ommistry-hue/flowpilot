@@ -1,0 +1,108 @@
+{
+  "schemaVersion": "1",
+  "id": "6f1c2a3e-1b7d-4c55-9a0e-2d8f4b6a1c03",
+  "name": "Large order approval",
+  "description": "POST an order to /hooks/orders. Orders over 1000 run an inventory check and a fraud check in parallel, wait for both, then go to a manager for approval. Small orders are confirmed straight away.",
+  "variables": { "threshold": 1000 },
+  "nodes": [
+    {
+      "id": "order",
+      "type": "trigger.webhook",
+      "name": "New order",
+      "config": { "path": "orders", "method": "POST" },
+      "position": { "x": 0, "y": 0 }
+    },
+    {
+      "id": "isLarge",
+      "type": "condition",
+      "name": "Over threshold?",
+      "config": { "expression": "input.body.total > vars.threshold" },
+      "position": { "x": 240, "y": 0 }
+    },
+    {
+      "id": "checks",
+      "type": "flow.parallel",
+      "name": "Run checks",
+      "config": {},
+      "position": { "x": 480, "y": -120 }
+    },
+    {
+      "id": "inventory",
+      "type": "http.request",
+      "name": "Inventory check",
+      "config": {
+        "url": "https://inventory.example.com/api/reserve",
+        "method": "POST",
+        "headers": { "Content-Type": "application/json" },
+        "body": "{{ ({ orderId: trigger.body.id, items: trigger.body.items }) }}"
+      },
+      "retry": { "maxAttempts": 3, "initialDelayMs": 1000, "backoffMultiplier": 2, "maxDelayMs": 30000 },
+      "position": { "x": 720, "y": -200 }
+    },
+    {
+      "id": "fraud",
+      "type": "http.request",
+      "name": "Fraud score",
+      "config": {
+        "url": "https://risk.example.com/api/score",
+        "method": "POST",
+        "headers": { "Content-Type": "application/json" },
+        "body": "{{ ({ orderId: trigger.body.id, email: trigger.body.customer.email, total: trigger.body.total }) }}"
+      },
+      "retry": { "maxAttempts": 3, "initialDelayMs": 1000, "backoffMultiplier": 2, "maxDelayMs": 30000 },
+      "position": { "x": 720, "y": -40 }
+    },
+    {
+      "id": "join",
+      "type": "flow.join",
+      "name": "Wait for both",
+      "config": { "mode": "all" },
+      "position": { "x": 960, "y": -120 }
+    },
+    {
+      "id": "approve",
+      "type": "approval",
+      "name": "Manager approval",
+      "config": {
+        "title": "Approve order {{ trigger.body.id }} ({{ trigger.body.total }} {{ trigger.body.currency ?? 'EUR' }})",
+        "description": "Customer: {{ trigger.body.customer.email }}\nInventory: {{ input.inventory.body.status }}\nFraud score: {{ input.fraud.body.score }}",
+        "assignee": "sales-managers"
+      },
+      "position": { "x": 1200, "y": -120 }
+    },
+    {
+      "id": "confirm",
+      "type": "http.request",
+      "name": "Confirm order",
+      "config": {
+        "url": "https://shop.example.com/api/orders/{{ trigger.body.id }}/confirm",
+        "method": "POST"
+      },
+      "retry": { "maxAttempts": 5, "initialDelayMs": 1000, "backoffMultiplier": 2, "maxDelayMs": 60000 },
+      "position": { "x": 1440, "y": 0 }
+    },
+    {
+      "id": "cancel",
+      "type": "http.request",
+      "name": "Cancel order",
+      "config": {
+        "url": "https://shop.example.com/api/orders/{{ trigger.body.id }}/cancel",
+        "method": "POST"
+      },
+      "retry": { "maxAttempts": 5, "initialDelayMs": 1000, "backoffMultiplier": 2, "maxDelayMs": 60000 },
+      "position": { "x": 1440, "y": -240 }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "source": "order", "sourceHandle": "done", "target": "isLarge" },
+    { "id": "e2", "source": "isLarge", "sourceHandle": "true", "target": "checks" },
+    { "id": "e3", "source": "isLarge", "sourceHandle": "false", "target": "confirm" },
+    { "id": "e4", "source": "checks", "sourceHandle": "done", "target": "inventory" },
+    { "id": "e5", "source": "checks", "sourceHandle": "done", "target": "fraud" },
+    { "id": "e6", "source": "inventory", "sourceHandle": "done", "target": "join" },
+    { "id": "e7", "source": "fraud", "sourceHandle": "done", "target": "join" },
+    { "id": "e8", "source": "join", "sourceHandle": "done", "target": "approve" },
+    { "id": "e9", "source": "approve", "sourceHandle": "approved", "target": "confirm" },
+    { "id": "e10", "source": "approve", "sourceHandle": "rejected", "target": "cancel" }
+  ]
+}

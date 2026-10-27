@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dotnet:
+    name: .NET build and test
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: flowpilot
+          POSTGRES_PASSWORD: flowpilot
+          POSTGRES_DB: flowpilot
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U flowpilot"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+      # Enables the PostgreSQL variants of the engine tests; each test creates and drops its own database.
+      FLOWPILOT_TEST_POSTGRES: Host=localhost;Port=5432;Username=flowpilot;Password=flowpilot;Database=flowpilot
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.x
+
+      - name: Restore
+        run: dotnet restore FlowPilot.slnx
+
+      - name: Build
+        run: dotnet build FlowPilot.slnx --configuration Release --no-restore -warnaserror
+
+      - name: Test
+        run: dotnet test FlowPilot.slnx --configuration Release --no-build --verbosity normal
+
+  web:
+    name: Web build and lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+  docker:
+    name: Docker build
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build image (no push)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: flowpilot:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

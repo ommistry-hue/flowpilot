@@ -1,0 +1,37 @@
+# VCS and editor
+.git
+.gitignore
+.gitattributes
+.github
+.vs
+.vscode
+.idea
+*.user
+*.suo
+
+# Build output
+**/bin/
+**/obj/
+**/TestResults/
+src/FlowPilot.Server/wwwroot/
+
+# Node
+**/node_modules/
+web/dist/
+
+# Local data and secrets
+*.db
+*.db-shm
+*.db-wal
+plugins/
+.env
+.env.*
+
+# Not needed in the image
+docs/
+examples/
+*.md
+!web/**/*.md
+Dockerfile
+.dockerignore
+docker-compose*.yml

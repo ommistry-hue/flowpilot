@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "1",
+  "id": "6f1c2a3e-1b7d-4c55-9a0e-2d8f4b6a1c04",
+  "name": "Batch sync users to CRM",
+  "description": "Run manually. Fetches users from a source API, upserts each one into a CRM with retries, counts successes in a run variable, and logs a summary. Demonstrates loop.forEach, item/index scope and variable.set.",
+  "variables": { "synced": 0 },
+  "nodes": [
+    {
+      "id": "start",
+      "type": "trigger.manual",
+      "name": "Start sync",
+      "config": {},
+      "position": { "x": 0, "y": 0 }
+    },
+    {
+      "id": "fetchUsers",
+      "type": "http.request",
+      "name": "Fetch users",
+      "config": {
+        "url": "https://jsonplaceholder.typicode.com/users",
+        "method": "GET"
+      },
+      "retry": { "maxAttempts": 3, "initialDelayMs": 1000, "backoffMultiplier": 2, "maxDelayMs": 30000 },
+      "position": { "x": 240, "y": 0 }
+    },
+    {
+      "id": "eachUser",
+      "type": "loop.forEach",
+      "name": "For each user",
+      "config": { "items": "nodes.fetchUsers.output.body" },
+      "position": { "x": 480, "y": 0 }
+    },
+    {
+      "id": "upsert",
+      "type": "http.request",
+      "name": "Upsert contact",
+      "config": {
+        "url": "https://crm.example.com/api/contacts/{{ item.email }}",
+        "method": "PUT",
+        "headers": { "Content-Type": "application/json" },
+        "body": "{{ ({ email: item.email, name: item.name, company: item.company.name, source: 'flowpilot', batchIndex: index }) }}"
+      },
+      "retry": { "maxAttempts": 4, "initialDelayMs": 500, "backoffMultiplier": 2, "maxDelayMs": 10000 },
+      "position": { "x": 720, "y": 120 }
+    },
+    {
+      "id": "count",
+      "type": "variable.set",
+      "name": "Count synced",
+      "config": { "name": "synced", "value": "{{ vars.synced + 1 }}" },
+      "position": { "x": 960, "y": 120 }
+    },
+    {
+      "id": "summary",
+      "type": "log",
+      "name": "Summary",
+      "config": { "message": "Synced {{ vars.synced }} of {{ nodes.fetchUsers.output.body.length }} users" },
+      "position": { "x": 720, "y": -120 }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "source": "start", "sourceHandle": "done", "target": "fetchUsers" },
+    { "id": "e2", "source": "fetchUsers", "sourceHandle": "done", "target": "eachUser" },
+    { "id": "e3", "source": "eachUser", "sourceHandle": "item", "target": "upsert" },
+    { "id": "e4", "source": "upsert", "sourceHandle": "done", "target": "count" },
+    { "id": "e5", "source": "count", "sourceHandle": "done", "target": "eachUser" },
+    { "id": "e6", "source": "eachUser", "sourceHandle": "done", "target": "summary" }
+  ]
+}

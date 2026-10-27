@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "1",
+  "id": "6f1c2a3e-1b7d-4c55-9a0e-2d8f4b6a1c02",
+  "name": "Daily AI summary of open issues",
+  "description": "Every weekday at 08:00 (Europe/Berlin), fetches open GitHub issues, asks the configured LLM for a short prioritised summary, and posts it to chat. Requires FlowPilot:AI settings. Publish the workflow to activate the cron trigger.",
+  "variables": { "repo": "ommistry-hue/flowpilot" },
+  "nodes": [
+    {
+      "id": "schedule",
+      "type": "trigger.cron",
+      "name": "Weekdays 08:00",
+      "config": { "cron": "0 8 * * 1-5", "timezone": "Europe/Berlin" },
+      "position": { "x": 0, "y": 0 }
+    },
+    {
+      "id": "fetchIssues",
+      "type": "http.request",
+      "name": "Fetch open issues",
+      "config": {
+        "url": "https://api.github.com/repos/{{ vars.repo }}/issues?state=open&per_page=50",
+        "method": "GET",
+        "headers": { "Accept": "application/vnd.github+json", "User-Agent": "FlowPilot" },
+        "timeoutMs": 15000
+      },
+      "retry": { "maxAttempts": 3, "initialDelayMs": 2000, "backoffMultiplier": 2, "maxDelayMs": 30000 },
+      "position": { "x": 260, "y": 0 }
+    },
+    {
+      "id": "slim",
+      "type": "script",
+      "name": "Keep the useful fields",
+      "config": {
+        "code": "return input.body\n  .filter(i => !i.pull_request)\n  .map(i => ({ number: i.number, title: i.title, labels: i.labels.map(l => l.name), comments: i.comments, updated: i.updated_at }));"
+      },
+      "position": { "x": 520, "y": 0 }
+    },
+    {
+      "id": "summarise",
+      "type": "ai.prompt",
+      "name": "Summarise",
+      "config": {
+        "system": "You are a concise engineering lead. Reply in Slack markdown, at most 8 bullet points.",
+        "prompt": "Here are the open issues for {{ vars.repo }} as JSON:\n{{ JSON.stringify(input) }}\n\nGroup them by theme, call out anything that looks urgent (bug labels, many comments, stale for over 2 weeks), and suggest the top 3 to tackle today.",
+        "json": false
+      },
+      "position": { "x": 780, "y": 0 }
+    },
+    {
+      "id": "post",
+      "type": "http.request",
+      "name": "Post report",
+      "config": {
+        "url": "https://hooks.slack.com/services/REPLACE/ME",
+        "method": "POST",
+        "headers": { "Content-Type": "application/json" },
+        "body": "{{ ({ text: '*Daily issue report for ' + vars.repo + '* (' + nodes.slim.output.length + ' open)\\n' + input.text }) }}"
+      },
+      "retry": { "maxAttempts": 3, "initialDelayMs": 1000, "backoffMultiplier": 2, "maxDelayMs": 60000 },
+      "position": { "x": 1040, "y": 0 }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "source": "schedule", "sourceHandle": "done", "target": "fetchIssues" },
+    { "id": "e2", "source": "fetchIssues", "sourceHandle": "done", "target": "slim" },
+    { "id": "e3", "source": "slim", "sourceHandle": "done", "target": "summarise" },
+    { "id": "e4", "source": "summarise", "sourceHandle": "done", "target": "post" }
+  ]
+}

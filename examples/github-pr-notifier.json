@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "1",
+  "id": "6f1c2a3e-1b7d-4c55-9a0e-2d8f4b6a1c01",
+  "name": "GitHub PR opened -> chat notification",
+  "description": "Receives GitHub pull_request webhooks at /hooks/github, filters for newly opened PRs, and posts a message to a Slack-compatible incoming webhook. Point the GitHub webhook at https://<your-host>/hooks/github with content type application/json.",
+  "variables": {},
+  "nodes": [
+    {
+      "id": "github",
+      "type": "trigger.webhook",
+      "name": "GitHub webhook",
+      "config": { "path": "github", "method": "POST" },
+      "position": { "x": 0, "y": 0 }
+    },
+    {
+      "id": "isOpenedPr",
+      "type": "condition",
+      "name": "PR opened?",
+      "config": { "expression": "input.body.action === 'opened' && input.body.pull_request != null" },
+      "position": { "x": 260, "y": 0 }
+    },
+    {
+      "id": "notify",
+      "type": "http.request",
+      "name": "Post to chat",
+      "config": {
+        "url": "https://hooks.slack.com/services/REPLACE/ME",
+        "method": "POST",
+        "headers": { "Content-Type": "application/json" },
+        "body": "{{ ({ text: `:rocket: ${input.body.pull_request.user.login} opened PR #${input.body.number} in ${input.body.repository.full_name}: ${input.body.pull_request.title}\n${input.body.pull_request.html_url}` }) }}"
+      },
+      "retry": { "maxAttempts": 3, "initialDelayMs": 1000, "backoffMultiplier": 2, "maxDelayMs": 60000 },
+      "position": { "x": 520, "y": -80 }
+    },
+    {
+      "id": "ignored",
+      "type": "log",
+      "name": "Ignore other events",
+      "config": { "message": "Ignored GitHub event: {{ input.body.action ?? 'unknown' }}" },
+      "position": { "x": 520, "y": 80 }
+    },
+    {
+      "id": "notifyFailed",
+      "type": "log",
+      "name": "Notification failed",
+      "config": { "message": "Could not post PR notification for {{ trigger.body.pull_request.html_url }}" },
+      "position": { "x": 780, "y": -80 }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "source": "github", "sourceHandle": "done", "target": "isOpenedPr" },
+    { "id": "e2", "source": "isOpenedPr", "sourceHandle": "true", "target": "notify" },
+    { "id": "e3", "source": "isOpenedPr", "sourceHandle": "false", "target": "ignored" },
+    { "id": "e4", "source": "notify", "sourceHandle": "error", "target": "notifyFailed" }
+  ]
+}
